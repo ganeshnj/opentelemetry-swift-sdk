@@ -10,6 +10,15 @@
       }
     },
     {
+      "identity" : "opentelemetry-swift-api",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ganeshnj/opentelemetry-swift-api.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "20a2aff45f7fe0eb5161aba9964145ad19f11ab3"
+      }
+    },
+    {
       "identity" : "opentracing-objc",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/undefinedlabs/opentracing-objc",

@@ -11,7 +11,6 @@ let package = Package(
         .tvOS(.v11)
     ],
     products: [
-        .library(name: "OpenTelemetryApi", type: .static, targets: ["OpenTelemetryApi"]),
         .library(name: "OpenTelemetrySdk", type: .static, targets: ["OpenTelemetrySdk"]),
         .library(name: "ResourceExtension", type: .static, targets: ["ResourceExtension"]),
         .library(name: "URLSessionInstrumentation", type: .static, targets: ["URLSessionInstrumentation"]),
@@ -34,6 +33,7 @@ let package = Package(
         .executable(name: "loggingTracer", targets: ["LoggingTracer"]),
     ],
     dependencies: [
+        .package(url: "https://github.com/ganeshnj/opentelemetry-swift-api.git", branch: "main"),
         .package(name: "Opentracing", url: "https://github.com/undefinedlabs/opentracing-objc", exact: "0.5.2"),
         .package(name: "Thrift", url: "https://github.com/undefinedlabs/Thrift-Swift", exact: "1.1.1"),
         .package(name: "swift-nio", url: "https://github.com/apple/swift-nio.git", exact: "2.0.0"),
@@ -44,8 +44,6 @@ let package = Package(
         .package(name: "Reachability.swift", url: "https://github.com/ashleymills/Reachability.swift", exact: "5.1.0")
     ],
     targets: [
-        .target(name: "OpenTelemetryApi",
-                dependencies: []),
         .target(name: "OpenTelemetrySdk",
                 dependencies: ["OpenTelemetryApi"]),
         .target(name: "ResourceExtension",
@@ -58,7 +56,7 @@ let package = Package(
                 exclude: ["README.md"]),
         .target(name: "NetworkStatus",
                 dependencies: [
-                    "OpenTelemetryApi",
+                    .product(name: "OpenTelemetryApi", package: "opentelemetry-swift-api"),
                     .product(name: "Reachability", package: "Reachability.swift")
                 ],
                 path: "Sources/Instrumentation/NetworkStatus",
@@ -119,12 +117,11 @@ let package = Package(
         .testTarget(name: "NetworkStatusTests",
                     dependencies: ["NetworkStatus", .product(name: "Reachability", package: "Reachability.swift")],
                     path: "Tests/InstrumentationTests/NetworkStatusTests"),
-        .testTarget(name: "OpenTelemetryApiTests",
-                    dependencies: ["OpenTelemetryApi"],
-                    path: "Tests/OpenTelemetryApiTests"),
         .testTarget(name: "OpenTelemetrySdkTests",
-                    dependencies: ["OpenTelemetryApi",
-                                   "OpenTelemetrySdk"],
+                    dependencies: [
+                        .product(name: "OpenTelemetryApi", package: "opentelemetry-swift-api"),
+                        "OpenTelemetrySdk"
+                    ],
                     path: "Tests/OpenTelemetrySdkTests"),
         .testTarget(name: "ResourceExtensionTests",
                     dependencies: ["ResourceExtension", "OpenTelemetrySdk"],
@@ -154,9 +151,9 @@ let package = Package(
         .testTarget(name: "OpenTelemetryProtocolExporterTests",
                     dependencies: ["OpenTelemetryProtocolExporterGrpc",
                                    "OpenTelemetryProtocolExporterHttp",
-                                    .product(name: "NIO", package: "swift-nio"),
-                                    .product(name: "NIOHTTP1", package: "swift-nio"),
-                                    .product(name: "NIOTestUtils", package: "swift-nio")],
+                                   .product(name: "NIO", package: "swift-nio"),
+                                   .product(name: "NIOHTTP1", package: "swift-nio"),
+                                   .product(name: "NIOTestUtils", package: "swift-nio")],
                     path: "Tests/ExportersTests/OpenTelemetryProtocol"),
         .testTarget(name: "InMemoryExporterTests",
                     dependencies: ["InMemoryExporter"],
@@ -170,7 +167,9 @@ let package = Package(
                     dependencies: ["PersistenceExporter"],
                     path: "Tests/ExportersTests/PersistenceExporter"),
         .target(name: "LoggingTracer",
-                dependencies: ["OpenTelemetryApi"],
+                dependencies: [
+                    .product(name: "OpenTelemetryApi", package: "opentelemetry-swift-api"),
+                ],
                 path: "Examples/Logging Tracer"),
         .target(name: "SimpleExporter",
                 dependencies: ["OpenTelemetrySdk", "JaegerExporter", "StdoutExporter", "ZipkinExporter", "ResourceExtension", "SignPostIntegration"],
@@ -193,7 +192,11 @@ let package = Package(
                 path: "Examples/Datadog Sample",
                 exclude: ["README.md"]),
         .target(name: "StableMetricSample",
-                dependencies: ["OpenTelemetrySdk", "OpenTelemetryApi", "OpenTelemetryProtocolExporter", .product(name: "GRPC", package:  "grpc-swift")],
+                dependencies: [
+                    "OpenTelemetrySdk",
+                    .product(name: "OpenTelemetryApi", package: "opentelemetry-swift-api"),
+                    "OpenTelemetryProtocolExporter", .product(name: "GRPC", package:  "grpc-swift")
+                ],
                 path: "Examples/Stable Metric Sample",
                 exclude: ["README.md"]),
         .target(name: "NetworkSample",
